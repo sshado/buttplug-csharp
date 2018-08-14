@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:Buttplug.Apps.XamarinTest"
+             x:Class="Buttplug.Apps.XamarinTest.MainPage">
+
+    <StackLayout>
+        <!-- Place new controls here -->
+        <Label x:Name="NetworkLabel"
+               Text="Network IP" />
+        <Button x:Name="ServerBtn"
+                Text="Start Server"
+                Clicked="ServerBtn_Clicked" />
+    </StackLayout>
+
+</ContentPage>
