@@ -132,7 +132,10 @@ after_test:
         Invoke-WebRequest -Uri 'https://codecov.io/bash' -OutFile codecov.sh
         bash codecov.sh -f "coverage.xml" -X gcov
       }
-
+  - ps: |
+      Push-Location ./docs
+      ./build.ps1
+      Pop-Location
 # Enable for RDP connections to failing build VMs
 # on_finish:
 #   - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
