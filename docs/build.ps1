@@ -7,6 +7,8 @@ if ( $env:git_access_token ) {
   Write-Host "Do Not Have Access Token"
 }
 
+$Deploy="true"
+
 if($env:APPVEYOR_REPO_BRANCH -eq "master" -and -not $env:APPVEYOR_PULL_REQUEST_NUMBER -and $env:APPVEYOR_JOB_NAME -like "*Release*" -and $env:git_access_token){
   $Deploy="true"
   Write-Host "Deploying docs"
