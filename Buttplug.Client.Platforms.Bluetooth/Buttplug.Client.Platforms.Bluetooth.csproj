@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="JetBrains.Annotations" Version="2018.3.0" />
+    <PackageReference Include="PostSharp" Version="6.0.33" />
+    <PackageReference Include="PostSharp.Patterns.Threading" Version="6.0.33" />
+  </ItemGroup>
+
+</Project>
