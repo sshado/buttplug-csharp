@@ -7,6 +7,10 @@ namespace Buttplug.Client.Platforms.Bluetooth.Composition
 {
     public interface IRuntimeArea
     {
-        Compose () ;
+        /// <summary>
+        ///     Composes the runtime area and returns true if there were no issues in runtime.
+        /// </summary>
+        /// <returns></returns>
+        bool Compose () ;
     }
 }
