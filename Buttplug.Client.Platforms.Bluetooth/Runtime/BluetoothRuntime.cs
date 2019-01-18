@@ -3,6 +3,7 @@
 #endregion
 
 using System ;
+using System.IO ;
 using System.Reflection ;
 using System.Threading.Tasks ;
 
@@ -11,35 +12,38 @@ using Buttplug.Client.Platforms.Bluetooth.Platforms ;
 using JetBrains.Annotations ;
 
 using PostSharp.Patterns.Contracts ;
+using PostSharp.Patterns.Diagnostics ;
+using PostSharp.Patterns.Diagnostics.Backends.Console ;
+using PostSharp.Patterns.Threading ;
+
+using NotNullAttribute = JetBrains.Annotations.NotNullAttribute;
 
 namespace Buttplug.Client.Platforms.Bluetooth
 {
     public sealed class BluetoothRuntime
     {
-        private static readonly string ApplicationUri ;
+        static BluetoothRuntime ()
+        {
+            Platform = new CommonPlatform();
+            Assembly = GetAssembly ( typeof( BluetoothRuntime ) ) ;
+            ApplicationUri = Path.GetDirectoryName (Assembly.Location ) ;
+        }
 
+        [ Pure ] private static Assembly GetAssembly<T>(T type) => type.GetType ().GetTypeInfo ().Assembly ;
+
+        [ NotNull ] private static readonly Assembly Assembly ; 
+        [ NotNull ] private static readonly string ApplicationUri ;
+        [ NotNull ] private static readonly CommonPlatform Platform ;
+
+        [ EntryPoint ]
         public void Entry ()
         {
+            LoggingServices.DefaultBackend = new ConsoleLoggingBackend();
 
         }
 
-        /// <summary>
-        ///     Loads a reference to a desired type within the overall assembly.
-        /// </summary>
-        /// <param name="namespace">The specific namespace containing a type to be loaded.</param>
-        /// <param name="className">The specific type to load from within the assembly.</param>
-        /// <returns></returns>
-        [Pure]
-        public IPlatformClass GetPlatformClass(
-            [JetBrains.Annotations.NotNull] [Required]
-            string @namespace,
-            [JetBrains.Annotations.NotNull] [Required]
-            string className)
-        {
-            // Get calling assembly.
-            var calling = Assembly.GetCallingAssembly();
+        
 
-            return this.GetPlatformClass(calling, @namespace, className);
-        }
+
     }
 }

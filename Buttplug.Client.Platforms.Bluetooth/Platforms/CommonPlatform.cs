@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics ;
 using System.Linq ;
 using System.Reflection ;
 using System.Text;
@@ -8,22 +9,24 @@ using JetBrains.Annotations ;
 
 using PostSharp.Patterns.Contracts ;
 
+using Serilog ;
+
 namespace Buttplug.Client.Platforms.Bluetooth.Platforms
 {
-    class CommonPlatform
+    internal class CommonPlatform
     {
         /// <summary>
         ///     Validate whether a namespace exists in an assembly.
         /// </summary>
         /// <param name="assembly">A reference to an assembly.</param>
         /// <param name="namespace">The expected namespace.</param>
-        [Pure]
-        private bool DoesNamespaceExist([JetBrains.Annotations.NotNull] [PostSharp.Patterns.Contracts.NotNull]
-                                        Assembly assembly,
-                                        [JetBrains.Annotations.NotNull] [Required]
-                                        string @namespace)
+        [ Pure ]
+        private bool NamespaceExists ( [ JetBrains.Annotations.NotNull ] [ PostSharp.Patterns.Contracts.NotNull ]
+                                       Assembly assembly,
+                                       [ JetBrains.Annotations.NotNull ] [ Required ]
+                                       string @namespace )
         {
-            return assembly.GetTypes().Any(type => type.Namespace == @namespace);
+            return assembly.GetTypes ().Any ( type => type.Namespace == @namespace ) ;
         }
 
         /// <summary>
@@ -40,56 +43,81 @@ namespace Buttplug.Client.Platforms.Bluetooth.Platforms
         ///     e.g.    Windows == Win32NT == MyAssembly.MyType.Platforms.Win32NT
         ///     e.g.    (INativeType) CommonPlatform.GetPlatformClass( "MyAssembly.MyType.Platforms", "ConcreteNativeType" );
         /// </remarks>
-        [Pure]
-        public IPlatformClass GetPlatformClass(
-            [JetBrains.Annotations.NotNull] [Required]
+        [ Pure ]
+        public IPlatformClass GetPlatformClass (
+            [ JetBrains.Annotations.NotNull ] [ Required ]
             string @namespace,
-            [JetBrains.Annotations.NotNull] [Required]
-            string className)
+            [ JetBrains.Annotations.NotNull ] [ Required ]
+            string className )
         {
             // Get calling assembly.
-            var calling = Assembly.GetCallingAssembly();
+            var calling = Assembly.GetCallingAssembly () ;
 
-            return this.GetPlatformClass(calling, @namespace, className);
+            return this.GetPlatformClass ( calling, @namespace, className ) ;
         }
 
-        [Pure]
-        private IPlatformClass GetPlatformClass([JetBrains.Annotations.NotNull] [PostSharp.Patterns.Contracts.NotNull]
-                                                Assembly assembly,
-                                                [JetBrains.Annotations.NotNull] [Required]
-                                                string @namespace,
-                                                [JetBrains.Annotations.NotNull] [Required]
-                                                string className)
+        [ Pure ]
+        private IPlatformClass GetPlatformClass (
+            [ JetBrains.Annotations.NotNull ] [ PostSharp.Patterns.Contracts.NotNull ]
+            Assembly assembly,
+            [ JetBrains.Annotations.NotNull ] [ Required ]
+            string @namespace,
+            [ JetBrains.Annotations.NotNull ] [ Required ]
+            string className )
         {
             // Validate base namespace.
-            if (!this.DoesNamespaceExist(assembly, @namespace))
-                this.Die($"Base namespace does not exist: {@namespace}");
+            if ( ! this.NamespaceExists ( assembly, @namespace ) )
+                this.Crash( $"Namespace not be located: {@namespace} in assembly: {assembly.FullName}" ) ;
 
             // Get platform-specific namespace.
-            string platformNamespace = $"{@namespace}.{Environment.OSVersion.Platform.ToString()}";
+            string platformNamespace = $"{@namespace}.{Environment.OSVersion.Platform.ToString ()}" ;
 
             // Validate platform-specific namespace.
-            if (!this.DoesNamespaceExist(assembly, platformNamespace))
-                this.Die($"Platform: {Environment.OSVersion.Platform.ToString()} not supported for namespace {@namespace}");
+            if ( ! this.NamespaceExists ( assembly, platformNamespace ) )
+                this.Crash ( $"CommonPlatform: {Environment.OSVersion.Platform.ToString ()} was not found in {@namespace}" ) ;
 
             // Create platform-specific class instance.
-            var typeName = $"{platformNamespace}.{className}";
+            var typeName = $"{platformNamespace}.{className}" ;
 
             try
             {
-                var type = assembly.GetType(typeName);
+                var type = assembly.GetType ( typeName ) ;
 
-                var instance = (IPlatformClass)Activator.CreateInstance(type);
+                var instance = ( IPlatformClass ) Activator.CreateInstance ( type ) ;
 
-                return instance;
+                return instance ;
             }
-            catch (Exception ex)
+            catch ( Exception ex )
             {
-                this.Die($"Failed to create platform-specific class {typeName}: {ex.Message}");
+                this.Crash( $"Failed to create a native platform class called {typeName}: {ex.Message}" ) ;
 
-                // ReSharper disable once HeuristicUnreachableCode - exists to satisfy verifier
-                return null;
+                // ReSharper disable once HeuristicUnreachableCode - satisfy verifier
+                return null ;
             }
+        }
+
+        /// <summary>
+        ///     A critical problem exists and evokes a last-second cleanup before halting.
+        /// </summary>
+        /// <param name="reason">A detailed reason for the incoming crash.</param>
+        [ Pure, ContractAnnotation ( "=> halt" ) ]
+        public void Crash ( string reason = "A catastrophic failure has occurred." )
+        {
+            Log.Fatal ( ( reason ) ) ;
+
+            // Check for the presence of debugger and yield.
+            this.EnterDebugger();
+
+            // ReSharper disable once InconsistentNaming - 128 (0x80) indicates no need to wait for child processes
+            const int ERROR_WAIT_NO_CHILDREN = 128;
+            Environment.Exit(ERROR_WAIT_NO_CHILDREN);
+        }
+
+        [Conditional( "DEBUG")]
+        private void EnterDebugger()
+        {
+            if (Debugger.IsAttached)
+                Debugger.Break();
         }
     }
 }
