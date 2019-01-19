@@ -7,6 +7,7 @@ using System.IO ;
 using System.Reflection ;
 using System.Threading.Tasks ;
 
+using Buttplug.Client.Platforms.Bluetooth.Aspects ;
 using Buttplug.Client.Platforms.Bluetooth.Platforms ;
 
 using JetBrains.Annotations ;
@@ -14,12 +15,14 @@ using JetBrains.Annotations ;
 using PostSharp.Patterns.Contracts ;
 using PostSharp.Patterns.Diagnostics ;
 using PostSharp.Patterns.Diagnostics.Backends.Console ;
+using PostSharp.Patterns.Model ;
 using PostSharp.Patterns.Threading ;
 
 using NotNullAttribute = JetBrains.Annotations.NotNullAttribute;
 
 namespace Buttplug.Client.Platforms.Bluetooth
 {
+    [ LoggingExceptionsHandled ]
     public sealed class BluetoothRuntime
     {
         static BluetoothRuntime ()
@@ -33,17 +36,12 @@ namespace Buttplug.Client.Platforms.Bluetooth
 
         [ NotNull ] private static readonly Assembly Assembly ; 
         [ NotNull ] private static readonly string ApplicationUri ;
-        [ NotNull ] private static readonly CommonPlatform Platform ;
+        [ NotNull , Child ] private static readonly CommonPlatform Platform ;
 
         [ EntryPoint ]
         public void Entry ()
         {
             LoggingServices.DefaultBackend = new ConsoleLoggingBackend();
-
         }
-
-        
-
-
     }
 }
