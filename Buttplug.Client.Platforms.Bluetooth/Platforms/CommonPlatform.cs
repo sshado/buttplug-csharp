@@ -7,6 +7,9 @@ using System.Text;
 
 using JetBrains.Annotations ;
 
+using Microsoft.DotNet.PlatformAbstractions ;
+using Microsoft.Extensions.DependencyModel ;
+
 using PostSharp.Patterns.Contracts ;
 
 using Serilog ;
@@ -15,6 +18,46 @@ namespace Buttplug.Client.Platforms.Bluetooth.Platforms
 {
     internal class CommonPlatform
     {
+
+        private Assembly _caller () => Assembly.GetCallingAssembly() ;
+        private Assembly _entry () => Assembly.GetEntryAssembly () ;
+
+        /// <summary>
+        ///     Locates all matching types in assemblies which were known at compile time.
+        /// </summary>
+        /// <typeparam name="T">A type known at compile time.</typeparam>
+        /// <remarks>
+        ///     This should not be used for dynamically compiled assemblies.
+        /// </remarks>
+        [ Pure ]
+        private static IEnumerable<Type> GetAllTypesOf<T>()
+        {
+            var platform             = Environment.OSVersion.Platform.ToString();
+            var runtimeAssemblyNames = DependencyContext.Default.GetRuntimeAssemblyNames(platform);
+
+            return runtimeAssemblyNames
+                  .Select(Assembly.Load)
+                  .SelectMany(a => a.ExportedTypes)
+                  .Where(t => typeof(T).IsAssignableFrom(t));
+        }
+
+        /// <summary>
+        ///     Return types which are dynamically known from the entry-point assembly.
+        /// </summary>
+        /// <param name="assembly">A reference to an assembly.</param>
+        /// <param name="namespace">The expected namespace.</param>
+        [Pure]
+        private IEnumerable<Type> FindTypes([ JetBrains.Annotations.NotNull ] [ PostSharp.Patterns.Contracts.NotNull ]
+                                            Assembly assembly,
+                                            [ JetBrains.Annotations.NotNull ] [ Required ]
+                                            string @namespace)
+        {
+            _entry().GetReferencedAssemblies();
+            foreach (TypeInfo type in _entry().DefinedTypes)
+                if ( type.ImplementedInterfaces.Contains ( typeof( IMicroService ) ) )
+                    yield return type ;
+        }
+
         /// <summary>
         ///     Validate whether a namespace exists in an assembly.
         /// </summary>
@@ -39,7 +82,7 @@ namespace Buttplug.Client.Platforms.Bluetooth.Platforms
         /// </returns>
         /// <remarks>
         ///     This method currently only supports classes contained within the calling assembly.
-        ///     The class must exist within a namespace ending with its <see cref="Environment.OSVersion.Platform"/>.
+        ///     The class must exist within a namespace ending with its <see cref="Platform"/>.
         ///     e.g.    Windows == Win32NT == MyAssembly.MyType.Platforms.Win32NT
         ///     e.g.    (INativeType) CommonPlatform.GetPlatformClass( "MyAssembly.MyType.Platforms", "ConcreteNativeType" );
         /// </remarks>

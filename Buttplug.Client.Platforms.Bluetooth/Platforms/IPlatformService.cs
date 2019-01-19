@@ -45,7 +45,7 @@ namespace Buttplug.Client.Platforms.Bluetooth
         Task PostMessage([NotNull] dynamic message);
 
         /// <summary>
-        ///     Called to terminate the system if a critical failure occurs in the complex state.
+        ///     Called to terminate the system if a critical failure occurs in the complex actor state or platform-specific state.
         /// </summary>
         /// <param name="reason">As much detail as possible regarding the reason for fatality.</param>
         void Fatal(string reason);
