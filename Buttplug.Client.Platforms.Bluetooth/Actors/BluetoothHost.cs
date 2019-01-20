@@ -1,22 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System ;
 using System.Threading ;
 using System.Threading.Tasks ;
 
 using Microsoft.Extensions.Hosting ;
 using Microsoft.Extensions.Logging ;
 
-namespace Buttplug.Client.Platforms.Bluetooth.Platforms
+namespace Buttplug.Client.Platforms.Bluetooth.Actors
 {
     /// <summary>
     ///     Uses <see cref="Microsoft.Extensions.Logging.ILoggerFactory"/> for a logging source.
     /// </summary>
-    public class BluetoothHostService : IHostedService
+    public class BluetoothHost : IHostedService
     {
         public Task StartAsync(CancellationToken cancellationToken)
         {
-             
+            throw new NotImplementedException();
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
@@ -26,6 +24,6 @@ namespace Buttplug.Client.Platforms.Bluetooth.Platforms
 
         readonly ILoggerFactory _factory;
 
-        public BluetoothHostService(ILoggerFactory factory) => _factory = factory ;
+        public BluetoothHost(ILoggerFactory factory) => _factory = factory ;
     }
 }

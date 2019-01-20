@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq ;
 using System.Text;
 using System.Threading.Tasks ;
 
+using Buttplug.Client.Platforms.Bluetooth.Actors ;
+using Buttplug.Client.Platforms.Bluetooth.Exceptions ;
 using Buttplug.Client.Platforms.Bluetooth.Runtime ;
 
 using JetBrains.Annotations ;
@@ -14,20 +17,29 @@ using Microsoft.Extensions.Configuration.Json ;
 using Microsoft.Extensions.DependencyInjection ;
 using Microsoft.Extensions.Logging ;
 
+using PostSharp.Patterns.Model ;
+using PostSharp.Patterns.Threading ;
+using PostSharp.Serialization ;
+
 using Serilog ;
+using Serilog.Events ;
 
 using ILogger = Serilog.ILogger ;
 
 namespace Buttplug.Client.Platforms.Bluetooth.Platforms
 {
+    [ PrivateThreadAware ]
     internal class CommonHost
     {
+        [ Reference ]
         private readonly ILogger _log = Log.ForContext <CommonHost>() ;
+        [ Child ]
         public IEnumerable <IMicroService> Microservices { get ; private set ; }
 
-        public async Task Start ([CanBeNull]string[] args, CommonPlatform platform)
+        [ Reentrant ]
+        public async Task Start ( CommonPlatform platform, [ CanBeNull ] string[] args = null )
         {
-            var developing = await BeingDeveloped () ;
+            var developing = BeingDeveloped () ;
 
             var builder = new HostBuilder ()
                          .ConfigureAppConfiguration ( ( context, config ) =>
@@ -44,19 +56,39 @@ namespace Buttplug.Client.Platforms.Bluetooth.Platforms
                                                       } )
                          .UseSerilog ( ( host, log ) =>
                                        {
-                                           if ( developing )
+                                           bool configured =
+                                               Enum.TryParse (typeof(Serilog.Events.LogEventLevel),
+                                                              host.Configuration.GetSection ( "LoggingLevel" ).Value,
+                                                              true,
+                                                              out object config ) ;
+                                           if ( developing && configured )
                                                log.WriteTo.Console ().MinimumLevel
-                                                  .Is ( ( Serilog.Events.LogEventLevel.Verbose ) ) ;
+                                                  .Is ( ( LogEventLevel ) config ) ;
+                                           else
+                                               log.WriteTo.Console ().MinimumLevel
+                                                  .Is ( LogEventLevel.Verbose ) ;
                                        } )
                          .ConfigureServices ( configureDelegate: ( context, services ) =>
                                                                  {
                                                                      services.AddOptions () ;
-                                                                     services.Configure <AppConfig> ( context.Configuration.GetSection ( "Logging" ) ) ;
-                                                                     services.AddMicroservices ( platform ) ;
+                                                                     services.Configure <AppConfig> ( context
+                                                                                                     .Configuration
+                                                                                                     .GetSection ( "AppConfig" ) ) ;
+
+                                                                     services
+                                                                        .AddSingleton <IHostedService, BluetoothHost
+                                                                         > () ;
+
+                                                                     //var microservices =
+                                                                     //    (IEnumerable<IMicroService>) CommonPlatform
+                                                                     //       .GetAllTypesOf <IMicroService> () ?? throw new FailedToLocateMicroservicesException("CommonPlatform:\r\n  CommonPlatform.GetAllTypesOf<IMicroService> failed to locate any services." );
+
+                                                                     //services.AddMicroservices ( microservices ) ;
                                                                  } ) ;
+            await builder.RunConsoleAsync () ;
         }
 
-        private async Task <bool> BeingDeveloped ()
+        private bool BeingDeveloped ()
         {
             var env =
                 Environment.GetEnvironmentVariable("NETCORE_ENVIRONMENT");

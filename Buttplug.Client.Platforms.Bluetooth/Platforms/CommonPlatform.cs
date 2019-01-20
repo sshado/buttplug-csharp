@@ -4,6 +4,9 @@ using System.Diagnostics ;
 using System.Linq ;
 using System.Reflection ;
 using System.Text;
+using System.Threading.Tasks ;
+
+using Buttplug.Client.Platforms.Bluetooth.Aspects ;
 
 using JetBrains.Annotations ;
 
@@ -11,16 +14,23 @@ using Microsoft.DotNet.PlatformAbstractions ;
 using Microsoft.Extensions.DependencyModel ;
 
 using PostSharp.Patterns.Contracts ;
+using PostSharp.Patterns.Model ;
+using PostSharp.Patterns.Threading ;
 
 using Serilog ;
 
 namespace Buttplug.Client.Platforms.Bluetooth.Platforms
 {
+    [Freezable]
+    [ThreadingModelSatisfied]
     internal class CommonPlatform
     {
 
         private Assembly _caller () => Assembly.GetCallingAssembly() ;
         private Assembly _entry () => Assembly.GetEntryAssembly () ;
+
+        [ Child ]
+        public CommonHost BluetoothHost = new CommonHost () ;
 
         /// <summary>
         ///     Locates all matching types in assemblies which were known at compile time.
@@ -30,7 +40,7 @@ namespace Buttplug.Client.Platforms.Bluetooth.Platforms
         ///     This should not be used for dynamically compiled assemblies.
         /// </remarks>
         [ Pure ]
-        private static IEnumerable<Type> GetAllTypesOf<T>()
+        public static IEnumerable<Type> GetAllTypesOf<T>()
         {
             var platform             = Environment.OSVersion.Platform.ToString();
             var runtimeAssemblyNames = DependencyContext.Default.GetRuntimeAssemblyNames(platform);
@@ -44,13 +54,8 @@ namespace Buttplug.Client.Platforms.Bluetooth.Platforms
         /// <summary>
         ///     Return types which are dynamically known from the entry-point assembly.
         /// </summary>
-        /// <param name="assembly">A reference to an assembly.</param>
-        /// <param name="namespace">The expected namespace.</param>
         [Pure]
-        private IEnumerable<Type> FindTypes([ JetBrains.Annotations.NotNull ] [ PostSharp.Patterns.Contracts.NotNull ]
-                                            Assembly assembly,
-                                            [ JetBrains.Annotations.NotNull ] [ Required ]
-                                            string @namespace)
+        private IEnumerable<Type> FindEntryTypes<T>()
         {
             _entry().GetReferencedAssemblies();
             foreach (TypeInfo type in _entry().DefinedTypes)
@@ -94,7 +99,7 @@ namespace Buttplug.Client.Platforms.Bluetooth.Platforms
             string className )
         {
             // Get calling assembly.
-            var calling = Assembly.GetCallingAssembly () ;
+            var calling = _caller() ;
 
             return this.GetPlatformClass ( calling, @namespace, className ) ;
         }
@@ -156,7 +161,7 @@ namespace Buttplug.Client.Platforms.Bluetooth.Platforms
             Environment.Exit(ERROR_WAIT_NO_CHILDREN);
         }
 
-        [Conditional( "DEBUG")]
+        [ Pure, Conditional ( "DEBUG" ) ]
         private void EnterDebugger()
         {
             if (Debugger.IsAttached)

@@ -8,12 +8,14 @@ using System ;
 using PostSharp.Aspects ;
 using PostSharp.Patterns.Diagnostics ;
 using PostSharp.Patterns.Diagnostics.Contexts ;
+using PostSharp.Serialization ;
 
 namespace Buttplug.Client.Platforms.Bluetooth.Aspects
 {
     /// <summary>
     ///     Wraps a logging exception handler around <see cref="LoggingServices"/> implementations.
     /// </summary>
+    [PSerializable]
     internal class LoggingExceptionsHandledAttribute : OnMethodBoundaryAspect, ILoggingExceptionHandler
     {
         public void OnInternalException(LoggingExceptionInfo exceptionInfo)
