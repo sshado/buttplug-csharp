@@ -29,7 +29,7 @@ namespace Buttplug.Client.Platforms.Bluetooth.Platforms
         private Assembly _caller () => Assembly.GetCallingAssembly() ;
         private Assembly _entry () => Assembly.GetEntryAssembly () ;
 
-        [ Child ]
+        [ Reference ]
         public CommonHost BluetoothHost = new CommonHost () ;
 
         /// <summary>

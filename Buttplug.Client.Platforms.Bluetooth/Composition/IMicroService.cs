@@ -4,6 +4,8 @@
 
 using System.Threading.Tasks;
 
+using Buttplug.Client.Platforms.Bluetooth.Composition ;
+
 using JetBrains.Annotations;
 
 namespace Buttplug.Client.Platforms.Bluetooth
@@ -15,11 +17,11 @@ namespace Buttplug.Client.Platforms.Bluetooth
     {
         Task<bool> Initialize([NotNull] IPlatformService coreService);
 
-        [NotNull]
-        string Name { get; }
+        [ NotNull ]
+        ActorIdentity Identity { get ; }
 
         /* async */
-        [NotNull]
+        [ NotNull ]
         Task HandleMessage([NotNull] dynamic message);
     }
 }

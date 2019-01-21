@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks ;
 
 using Buttplug.Client.Platforms.Bluetooth.Actors ;
+using Buttplug.Client.Platforms.Bluetooth.Aspects ;
 using Buttplug.Client.Platforms.Bluetooth.Exceptions ;
 using Buttplug.Client.Platforms.Bluetooth.Runtime ;
 
@@ -29,11 +30,13 @@ using ILogger = Serilog.ILogger ;
 namespace Buttplug.Client.Platforms.Bluetooth.Platforms
 {
     [ PrivateThreadAware ]
+    [ ThreadingModelSatisfied ]
     internal class CommonHost
     {
-        [ Reference ]
+        [Reference]
         private readonly ILogger _log = Log.ForContext <CommonHost>() ;
-        [ Child ]
+
+        [Child]
         public IEnumerable <IMicroService> Microservices { get ; private set ; }
 
         [ Reentrant ]
@@ -50,8 +53,8 @@ namespace Buttplug.Client.Platforms.Bluetooth.Platforms
                                                           if ( args != null )
                                                               config.AddCommandLine ( args ) ;
 
-                                                          if ( developing )
-                                                              config.AddUserSecrets <CommonHost> () ;
+                                                          //if ( developing )
+                                                          //    config.AddUserSecrets <CommonHost> () ;
 
                                                       } )
                          .UseSerilog ( ( host, log ) =>
@@ -76,8 +79,7 @@ namespace Buttplug.Client.Platforms.Bluetooth.Platforms
                                                                                                      .GetSection ( "AppConfig" ) ) ;
 
                                                                      services
-                                                                        .AddSingleton <IHostedService, BluetoothHost
-                                                                         > () ;
+                                                                        .AddSingleton <IHostedService, BluetoothHost> () ;
 
                                                                      //var microservices =
                                                                      //    (IEnumerable<IMicroService>) CommonPlatform

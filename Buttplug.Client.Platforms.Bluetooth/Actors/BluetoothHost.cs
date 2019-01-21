@@ -5,6 +5,9 @@ using System.Threading.Tasks ;
 using Microsoft.Extensions.Hosting ;
 using Microsoft.Extensions.Logging ;
 
+using PostSharp.Patterns.Model ;
+using PostSharp.Serialization ;
+
 namespace Buttplug.Client.Platforms.Bluetooth.Actors
 {
     /// <summary>
@@ -22,7 +25,7 @@ namespace Buttplug.Client.Platforms.Bluetooth.Actors
             throw new NotImplementedException();
         }
 
-        readonly ILoggerFactory _factory;
+        readonly ILoggerFactory _factory ;
 
         public BluetoothHost(ILoggerFactory factory) => _factory = factory ;
     }
