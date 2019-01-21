@@ -81,6 +81,11 @@ namespace Buttplug.Client.Platforms.Bluetooth.Platforms
                                                                      services
                                                                         .AddSingleton <IHostedService, BluetoothHost> () ;
 
+                                                                     var provider = services.BuildServiceProvider();
+                                                                     var bleHost =
+                                                                         provider.GetService <BluetoothHost> () ;
+                                                                     bleHost.Initialize ( platform ) ;
+
                                                                      //var microservices =
                                                                      //    (IEnumerable<IMicroService>) CommonPlatform
                                                                      //       .GetAllTypesOf <IMicroService> () ?? throw new FailedToLocateMicroservicesException("CommonPlatform:\r\n  CommonPlatform.GetAllTypesOf<IMicroService> failed to locate any services." );
