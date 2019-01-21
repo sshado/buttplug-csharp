@@ -14,7 +14,7 @@ namespace Buttplug.Examples.CrossPlatformConsole
             Console.WriteLine("Hello World!");
             var runtime = new BluetoothRuntime () ;
             runtime.Entry();
-
+            Console.ReadLine () ;
         }
     }
 }

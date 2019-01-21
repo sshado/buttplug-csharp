@@ -23,7 +23,7 @@ namespace Buttplug.Client.Platforms.Bluetooth.Platforms
 {
     [Freezable]
     [ThreadingModelSatisfied]
-    internal class CommonPlatform
+    public class CommonPlatform
     {
 
         private Assembly _caller () => Assembly.GetCallingAssembly() ;

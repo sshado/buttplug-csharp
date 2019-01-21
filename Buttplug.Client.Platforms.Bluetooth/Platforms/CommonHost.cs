@@ -31,7 +31,7 @@ namespace Buttplug.Client.Platforms.Bluetooth.Platforms
 {
     [ PrivateThreadAware ]
     [ ThreadingModelSatisfied ]
-    internal class CommonHost
+    public class CommonHost
     {
         [Reference]
         private readonly ILogger _log = Log.ForContext <CommonHost>() ;
@@ -79,11 +79,11 @@ namespace Buttplug.Client.Platforms.Bluetooth.Platforms
                                                                                                      .GetSection ( "AppConfig" ) ) ;
 
                                                                      services
-                                                                        .AddSingleton <IHostedService, BluetoothHost> () ;
+                                                                        .AddSingleton <IBluetoothHost, BluetoothHost> () ;
 
                                                                      var provider = services.BuildServiceProvider();
                                                                      var bleHost =
-                                                                         provider.GetService <BluetoothHost> () ;
+                                                                         provider.GetService <IBluetoothHost> () ;
                                                                      bleHost.Initialize ( platform ) ;
 
                                                                      //var microservices =

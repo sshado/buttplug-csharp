@@ -23,7 +23,7 @@ namespace Buttplug.Client.Platforms.Bluetooth.Actors
     /// <summary>
     ///     Uses <see cref="Microsoft.Extensions.Logging.ILoggerFactory"/> for a logging source.
     /// </summary>
-    public class BluetoothHost : IHostedService
+    public class BluetoothHost : IBluetoothHost
     {
         [Import]
         [Reference]
@@ -47,10 +47,10 @@ namespace Buttplug.Client.Platforms.Bluetooth.Actors
 
         [ Reference ] private CommonPlatform _platform ;
 
-        internal async Task Initialize (CommonPlatform platform )
-        {
-            _platform = platform ;
-        }
+        /// <inheritdoc />
+#pragma warning disable 1998
+        async Task IBluetoothHost.Initialize (CommonPlatform platform ) => _platform = platform ;
+#pragma warning restore 1998
 
         [Reference]
         private readonly ILogger _log = Log.ForContext <BluetoothHost>() ;
