@@ -6,6 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="ColoredConsole" Version="1.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Buttplug.Client.Platforms.Bluetooth\Buttplug.Client.Platforms.Bluetooth.csproj" />
   </ItemGroup>
 

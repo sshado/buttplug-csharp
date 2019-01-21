@@ -14,10 +14,12 @@ using JetBrains.Annotations ;
 using PostSharp ;
 using PostSharp.Patterns.Diagnostics ;
 using PostSharp.Patterns.Diagnostics.Backends.Console ;
+using PostSharp.Patterns.Diagnostics.Backends.Serilog ;
 using PostSharp.Patterns.Model ;
 using PostSharp.Patterns.Threading ;
 
 using Serilog ;
+using Serilog.Sinks.SystemConsole.Themes ;
 
 using NotNullAttribute = JetBrains.Annotations.NotNullAttribute;
 
@@ -40,10 +42,13 @@ namespace Buttplug.Client.Platforms.Bluetooth.Runtime
 
         [ Pure ] private static Assembly GetAssembly<T>(T type) => type.GetType ().GetTypeInfo ().Assembly ;
 
-        [ NotNull ] private static readonly Assembly Assembly ; 
-        [ NotNull ] private static readonly string ApplicationUri ;
+        [ NotNull , Reference ] private static readonly Assembly Assembly ; 
+        [ NotNull , Reference ] private static readonly string ApplicationUri ;
         [ NotNull , Child ] private static readonly CommonPlatform Platform ;
-        [ NotNull, Reference ] private readonly ILogger _log = Log.ForContext<BluetoothRuntime>();
+        [ NotNull , Reference ] private readonly ILogger _log = Log.ForContext<BluetoothRuntime>();
+        [ NotNull , Reference ] private const string _template =
+            "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level}] {Indent:l}{Message}{NewLine}{Exception}";
+        //[ NotNull, Reference ] private readonly string _fileSuffix = $"EntryPointLog_{DateTime.Today:d-MMM-yyyy}.log";
 
 
         [ EntryPoint ]
@@ -53,10 +58,10 @@ namespace Buttplug.Client.Platforms.Bluetooth.Runtime
             {
                 var serilogConfig = new LoggerConfiguration ()
                                    .MinimumLevel.Debug ()
-                                   .WriteTo.ColoredConsole ( outputTemplate: template )
-                                   .WriteTo.File ( fileSuffix, outputTemplate: template )
+                                   .WriteTo.Console ( outputTemplate: _template, theme: ConsoleExtensions.BluetoothConsole)
+                                   //.WriteTo.File (_fileSuffix, outputTemplate: _template )
                                    .CreateLogger () ;
-                LoggingServices.DefaultBackend = new ConsoleLoggingBackend () ;
+                LoggingServices.DefaultBackend = new SerilogLoggingBackend( serilogConfig ) ;
             }
             catch ( Exception ex )
             {
