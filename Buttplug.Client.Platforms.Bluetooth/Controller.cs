@@ -4,10 +4,13 @@ using System.Text;
 
 using Buttplug.Client.Platforms.Bluetooth.Composition ;
 
+using PostSharp.Patterns.Model ;
+
 namespace Buttplug.Client.Platforms.Bluetooth
 {
     internal sealed class Controller : IDisposable
     {
+        [ Reference ]
         public ControllerState State { get ; set ; }
 
         public void Dispose ()
