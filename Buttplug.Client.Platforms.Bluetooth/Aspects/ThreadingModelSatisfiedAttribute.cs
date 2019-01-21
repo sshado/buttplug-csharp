@@ -9,39 +9,36 @@ using JetBrains.Annotations ;
 using PostSharp.Constraints ;
 using PostSharp.Extensibility ;
 using PostSharp.Patterns.Model ;
+using PostSharp.Reflection ;
+using PostSharp.Serialization ;
 
 namespace Buttplug.Client.Platforms.Bluetooth.Aspects
 {
-    [UsedImplicitly]
-    [MulticastAttributeUsage(MulticastTargets.Property | MulticastTargets.Field, Inheritance = MulticastInheritance.None)]
+    [MulticastAttributeUsage(MulticastTargets.Property, TargetMemberAttributes = MulticastAttributes.Public | MulticastAttributes.Internal)]
+    [AttributeUsage(AttributeTargets.All, AllowMultiple = true)]
     public class ThreadingModelSatisfiedAttribute : ScalarConstraint
     {
         public override void ValidateCode(object target)
         {
-            var targetType = ( Type ) target ;
-            var attributes = targetType.CustomAttributes ;
-            if ( MissingChildAttribute ( ref attributes )
-              && MissingReferenceAttribute ( ref attributes )
-              && MissingParentAttribute ( ref attributes ) )
-                Message.Write (
-                               targetType, 
+            var missingChildAttribute = ReflectionSearch.HasCustomAttribute(target, typeof(ChildAttribute));
+            var missingReferenceAttribute = ReflectionSearch.HasCustomAttribute(target, typeof(ReferenceAttribute));
+            var missingParentAttribute = ReflectionSearch.HasCustomAttribute(target, typeof(ParentAttribute));
+
+            var attributes = ReflectionSearch.GetCustomAttributesOnTarget ( target ) ;
+
+           // foreach (var ((MethodInfo) method) in ((PropertyInfo) target))
+           // var name =
+
+            if ( !missingChildAttribute
+              && !missingReferenceAttribute
+              && !missingParentAttribute )
+                Message.Write(
+                               MessageLocation.Of(target),
                                SeverityType.Error,
-                               "0",
-                               "All properties and fields must be marked as a [Child], [Reference], or [Parent] to satisfy threading models using AggregatableAttribute.",
-                               targetType.DeclaringType,
-                               targetType.Name ) ;
+                               "BP000",
+                               "[Type: {0}] All properties and fields must be marked as a [Child], [Reference], or [Parent] to satisfy threading models using AggregatableAttribute.",
+                               target.GetType().Name + attributes.Select ( x => x.Attribute.TypeId ));
         }
 
-        private static bool MissingChildAttribute (ref IEnumerable <CustomAttributeData> attributes) => 
-            attributes.All ( 
-                            attribute => attribute.GetType () != typeof( ChildAttribute ) ) ;
-
-        private static bool MissingReferenceAttribute(ref IEnumerable<CustomAttributeData> attributes) =>
-            attributes.All(
-                           attribute => attribute.GetType() != typeof( ReferenceAttribute ));
-
-        private static bool MissingParentAttribute(ref IEnumerable<CustomAttributeData> attributes) =>
-            attributes.All(
-                           attribute => attribute.GetType() != typeof( ParentAttribute ));
     }
 }
