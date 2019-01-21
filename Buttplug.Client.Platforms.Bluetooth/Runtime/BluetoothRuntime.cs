@@ -19,6 +19,7 @@ using PostSharp.Patterns.Model ;
 using PostSharp.Patterns.Threading ;
 
 using Serilog ;
+using Serilog.Formatting.Compact ;
 using Serilog.Sinks.SystemConsole.Themes ;
 
 using NotNullAttribute = JetBrains.Annotations.NotNullAttribute;
@@ -46,8 +47,8 @@ namespace Buttplug.Client.Platforms.Bluetooth.Runtime
         [ NotNull , Reference ] private static readonly string ApplicationUri ;
         [ NotNull , Child ] private static readonly CommonPlatform Platform ;
         [ NotNull , Reference ] private readonly ILogger _log = Log.ForContext<BluetoothRuntime>();
-        [ NotNull , Reference ] private const string _template =
-            "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level}] {Indent:l}{Message}{NewLine}{Exception}";
+        [ NotNull , Reference ] private const string Template =
+            "{Timestamp:yyyy-MM-dd HH:mm:ss} | {Level:u3}: [{ThreadId}:{SourceContext}] {Message:lj}{NewLine}{Exception}";
         //[ NotNull, Reference ] private readonly string _fileSuffix = $"EntryPointLog_{DateTime.Today:d-MMM-yyyy}.log";
 
 
@@ -56,12 +57,7 @@ namespace Buttplug.Client.Platforms.Bluetooth.Runtime
         {
             try
             {
-                var serilogConfig = new LoggerConfiguration ()
-                                   .MinimumLevel.Debug ()
-                                   .WriteTo.Console ( outputTemplate: _template, theme: ConsoleExtensions.BluetoothConsole)
-                                   //.WriteTo.File (_fileSuffix, outputTemplate: _template )
-                                   .CreateLogger () ;
-                LoggingServices.DefaultBackend = new SerilogLoggingBackend( serilogConfig ) ;
+                LoggingServices.DefaultBackend = new SerilogLoggingBackend( VerboseLogger() ) ;
             }
             catch ( Exception ex )
             {
@@ -83,6 +79,7 @@ namespace Buttplug.Client.Platforms.Bluetooth.Runtime
                                                                        .Information ( "Successfully launched the common platform from the bluetooth runtime." ) ;
                                                             } ) ;
                 returned.Wait () ;
+                Platform.Crash("Whoa");
             }
             catch ( ObjectReadOnlyException roEx )
             {
@@ -105,6 +102,36 @@ namespace Buttplug.Client.Platforms.Bluetooth.Runtime
             }
         }
 
-        
+        private static ILogger VerboseLogger ()
+        {
+            var config = new LoggerConfiguration()
+                    .MinimumLevel.Verbose()
+                    .Enrich.FromLogContext()
+                    .Enrich.WithThreadId()
+                    .WriteTo.Debug(outputTemplate: Template)
+                    .WriteTo.Console(outputTemplate: Template, theme: ConsoleExtensions.BluetoothConsole);
+            //      suggested theme AnsiConsoleTheme.Literate
+            bool dumpLog = true ;
+            if (dumpLog)
+                config.WriteTo.File(new RenderedCompactJsonFormatter(),
+                                GetLogFileName(),
+                                rollingInterval: RollingInterval.Hour,
+                                buffered: true,
+                                retainedFileCountLimit: 100);
+
+            return config.CreateLogger();
+        }
+
+        private static ILogger DebugLogger ()
+        {
+            var serilogConfig = new LoggerConfiguration()
+                               .MinimumLevel.Debug()
+                               .WriteTo.Console(outputTemplate: Template, theme: ConsoleExtensions.BluetoothConsole)
+                                //.WriteTo.File (_fileSuffix, outputTemplate: _template )
+                               .CreateLogger();
+            return serilogConfig ;
+        }
+
+        private static string GetLogFileName () => $"{Environment.OSVersion}\buttplug-json-log-.txt" ;
     }
 }
