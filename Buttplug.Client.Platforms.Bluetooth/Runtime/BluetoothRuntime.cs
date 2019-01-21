@@ -49,7 +49,20 @@ namespace Buttplug.Client.Platforms.Bluetooth.Runtime
         [ EntryPoint ]
         public void Entry ()
         {
-            LoggingServices.DefaultBackend = new ConsoleLoggingBackend();
+            try
+            {
+                var serilogConfig = new LoggerConfiguration ()
+                                   .MinimumLevel.Debug ()
+                                   .WriteTo.ColoredConsole ( outputTemplate: template )
+                                   .WriteTo.File ( fileSuffix, outputTemplate: template )
+                                   .CreateLogger () ;
+                LoggingServices.DefaultBackend = new ConsoleLoggingBackend () ;
+            }
+            catch ( Exception ex )
+            {
+                Platform.Crash();
+            }
+
             try
             {
                 Post.Cast<BluetoothRuntime, IFreezable>(this).Freeze();
@@ -59,10 +72,7 @@ namespace Buttplug.Client.Platforms.Bluetooth.Runtime
                 var returned = cleanlyLaunch.ContinueWith ( ( t ) =>
                                                             {
                                                                 if ( t.IsFaulted || t.IsCanceled )
-                                                                    _log
-                                                                       .Fatal ( $"Fatal exception in the common platform at runtime." +
-                                                                                $"{Environment.NewLine}Stack: -------------"          +
-                                                                                $"{Environment.NewLine}{t.Exception.ToString ()}" ) ;
+                                                                    Platform.Crash ($"Fatal exception in the common platform at runtime{Environment.NewLine}{t.Exception?.ToString()}");
                                                                 else
                                                                     _log
                                                                        .Information ( "Successfully launched the common platform from the bluetooth runtime." ) ;
