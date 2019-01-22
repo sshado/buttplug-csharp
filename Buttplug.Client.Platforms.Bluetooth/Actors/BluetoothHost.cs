@@ -54,6 +54,7 @@ namespace Buttplug.Client.Platforms.Bluetooth.Actors
         public Task StopAsync(CancellationToken cancellationToken)
         {
             _log.Information("Stopping the Bluetooth Host.");
+            _timer.Dispose () ;
             return Task.CompletedTask ;
         }
 
