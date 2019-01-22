@@ -9,6 +9,5 @@ namespace Buttplug.Client.Platforms.Bluetooth.Platforms
 {
     public interface IBluetoothHost : IHostedService
     {
-        Task Initialize ( CommonPlatform platform ) ;
     }
 }

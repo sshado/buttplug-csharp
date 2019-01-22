@@ -3,15 +3,24 @@
 // This file is part of Buttplug.io which is BSD licensed.
 #endregion
 
+using Buttplug.Client.Platforms.Bluetooth.Actors ;
 using Buttplug.Client.Platforms.Bluetooth.Runtime ;
+
+using PostSharp.Patterns.Model ;
+
+using Serilog ;
 
 namespace Buttplug.Client.Platforms.Bluetooth.Native.Win32NT
 {
     public class NativeBluetooth : INativeBluetooth
     {
+        [Reference]
+        private readonly ILogger _log = Log.ForContext <BluetoothHost>() ;
+
         public bool Initialize ()
         {
-            throw new System.NotImplementedException () ;
+            _log.Warning("Reached a Not-Implemented-Exception boundary.");
+            return false ;
         }
 
         public void Terminate ()

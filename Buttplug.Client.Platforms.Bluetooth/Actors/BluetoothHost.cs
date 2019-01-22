@@ -9,6 +9,7 @@ using Buttplug.Client.Platforms.Bluetooth.Runtime ;
 
 using Microsoft.Extensions.Hosting ;
 using Microsoft.Extensions.Logging ;
+using Microsoft.Extensions.Options ;
 
 using PostSharp.Patterns.Model ;
 using PostSharp.Serialization ;
@@ -29,30 +30,46 @@ namespace Buttplug.Client.Platforms.Bluetooth.Actors
         [Reference]
         private INativeBluetooth _bluetooth { get ; set ; }
 
+        public BluetoothHost (IOptions <AppConfig> options, ILoggerFactory factory)
+        {
+            _platform = options.Value.Platform ;
+            _factory = factory;
+        }
+
         public Task StartAsync(CancellationToken cancellationToken)
         {
-             this._bluetooth =
-                 (INativeBluetooth) _platform.GetPlatformClass ( "Buttplug.Client.Platforms.Bluetooth.Native", "NativeBluetooth" ) ;
+            this._bluetooth =
+                (INativeBluetooth) _platform.GetPlatformClass ( "Buttplug.Client.Platforms.Bluetooth.Native", "NativeBluetooth" ) ;
+            this._bluetooth.Initialize () ;
+            
+            
+            _timer = new Timer(
+                               (e) => WriteTime(),
+                               null,
+                               TimeSpan.Zero,
+                               TimeSpan.FromMinutes(1));
             return Task.CompletedTask ;
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            _log.Information("Stopping the Bluetooth Host.");
+            return Task.CompletedTask ;
         }
 
-        readonly ILoggerFactory _factory ;
+        private readonly ILoggerFactory _factory ;
 
-        public BluetoothHost(ILoggerFactory factory) => _factory = factory ;
+        [ Reference ]
+        private Timer _timer { get ; set ; }
 
         [ Reference ] private CommonPlatform _platform ;
 
-        /// <inheritdoc />
-#pragma warning disable 1998
-        async Task IBluetoothHost.Initialize (CommonPlatform platform ) => _platform = platform ;
-#pragma warning restore 1998
-
         [Reference]
         private readonly ILogger _log = Log.ForContext <BluetoothHost>() ;
+
+        public void WriteTime()
+        {
+            _log.Verbose($"[Bluetooth Host]: {DateTime.UtcNow} on timer loop.");
+        }
     }
 }

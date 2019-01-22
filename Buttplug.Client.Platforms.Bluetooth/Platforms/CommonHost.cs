@@ -79,12 +79,16 @@ namespace Buttplug.Client.Platforms.Bluetooth.Platforms
                                                                                                      .GetSection ( "AppConfig" ) ) ;
 
                                                                      services
-                                                                        .AddSingleton <IBluetoothHost, BluetoothHost> () ;
+                                                                        .AddHostedService <BluetoothHost> () ;
+                                                                     services.Configure <AppConfig> ( options =>
+                                                                                                      {
+                                                                                                          options
+                                                                                                                 .Platform
+                                                                                                              = platform ;
+                                                                                                      } ) ;
 
                                                                      var provider = services.BuildServiceProvider();
-                                                                     var bleHost =
-                                                                         provider.GetService <IBluetoothHost> () ;
-                                                                     bleHost.Initialize ( platform ) ;
+                                                                     //var bleHost = provider.GetService <IBluetoothHost> () ;
 
                                                                      //var microservices =
                                                                      //    (IEnumerable<IMicroService>) CommonPlatform

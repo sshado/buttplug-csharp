@@ -79,7 +79,7 @@ namespace Buttplug.Client.Platforms.Bluetooth.Runtime
                                                                        .Information ( "Successfully launched the common platform from the bluetooth runtime." ) ;
                                                             } ) ;
                 returned.Wait () ;
-                Platform.Crash("Whoa");
+                //Platform.Crash("Whoa");
             }
             catch ( ObjectReadOnlyException roEx )
             {
