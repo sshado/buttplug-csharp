@@ -40,3 +40,7 @@ If you had a new platform called "AndroidOS" then you could add a class "NativeB
 So long as that class implements `INativeBluetooth` then it will be injected as soon as the platform name is recognized.
 
 If you wish to change the name of `NativeBluetooth.cs` then you must refer to `BluetoothHost.cs`.
+
+### Bluetooth Communication
+
+In progress.
