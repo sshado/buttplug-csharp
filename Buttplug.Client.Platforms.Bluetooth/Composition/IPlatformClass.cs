@@ -18,6 +18,6 @@ namespace Buttplug.Client.Platforms.Bluetooth.Platforms
         /// <summary>
         ///     Shutdown and perform any last minute procedures specific to the platform.
         /// </summary>
-        void Terminate();
+        void Terminate(string reason);
     }
 }
