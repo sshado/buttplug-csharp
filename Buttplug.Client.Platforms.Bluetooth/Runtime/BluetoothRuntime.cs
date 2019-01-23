@@ -20,6 +20,8 @@ using PostSharp.Patterns.Threading ;
 
 using Serilog ;
 using Serilog.Formatting.Compact ;
+using Serilog.Formatting.Display ;
+using Serilog.Formatting.Raw ;
 using Serilog.Sinks.SystemConsole.Themes ;
 
 using NotNullAttribute = JetBrains.Annotations.NotNullAttribute;
@@ -57,7 +59,9 @@ namespace Buttplug.Client.Platforms.Bluetooth.Runtime
         {
             try
             {
-                LoggingServices.DefaultBackend = new SerilogLoggingBackend( VerboseLogger() ) ;
+                var log = VerboseLogger () ;
+                Log.Logger = log ;
+                LoggingServices.DefaultBackend = new SerilogLoggingBackend( log ) ;
             }
             catch ( Exception ex )
             {
@@ -109,15 +113,15 @@ namespace Buttplug.Client.Platforms.Bluetooth.Runtime
                     .Enrich.FromLogContext()
                     .Enrich.WithThreadId()
                     .WriteTo.Debug(outputTemplate: Template)
-                    .WriteTo.Console(outputTemplate: Template, theme: ConsoleExtensions.BluetoothConsole);
+                    .WriteTo.Async(wt => wt.Console(outputTemplate: Template, theme: ConsoleExtensions.BluetoothConsole));
             //      suggested theme AnsiConsoleTheme.Literate
             bool dumpLog = true ;
             if (dumpLog)
-                config.WriteTo.File(new RenderedCompactJsonFormatter(),
+                config.WriteTo.Async( wt => wt.File(
                                 GetLogFileName(),
                                 rollingInterval: RollingInterval.Hour,
                                 buffered: true,
-                                retainedFileCountLimit: 100);
+                                retainedFileCountLimit: 100));
 
             return config.CreateLogger();
         }
@@ -132,6 +136,6 @@ namespace Buttplug.Client.Platforms.Bluetooth.Runtime
             return serilogConfig ;
         }
 
-        private static string GetLogFileName () => $"{Environment.OSVersion}\buttplug-json-log-.txt" ;
+        private static string GetLogFileName () => $"{Environment.OSVersion.Platform}-buttplug-json-log-.txt" ;
     }
 }

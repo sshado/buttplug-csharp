@@ -47,6 +47,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Buttplug.Client.Platforms.B
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Buttplug.Examples.CrossPlatformConsole", "Buttplug.Examples.CrossPlatformConsole\Buttplug.Examples.CrossPlatformConsole.csproj", "{9ABB277A-73E4-4897-B689-35404AEBFEB7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Buttplug.Client.Platforms.Bluetooth.Test", "Buttplug.Client.Platforms.Bluetooth.Test\Buttplug.Client.Platforms.Bluetooth.Test.csproj", "{C1395774-9D29-4698-9586-B789B741AD6D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -207,6 +209,14 @@ Global
 		{9ABB277A-73E4-4897-B689-35404AEBFEB7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9ABB277A-73E4-4897-B689-35404AEBFEB7}.ReleaseStandard|Any CPU.ActiveCfg = Release|Any CPU
 		{9ABB277A-73E4-4897-B689-35404AEBFEB7}.ReleaseStandard|Any CPU.Build.0 = Release|Any CPU
+		{C1395774-9D29-4698-9586-B789B741AD6D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1395774-9D29-4698-9586-B789B741AD6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1395774-9D29-4698-9586-B789B741AD6D}.DebugStandard|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1395774-9D29-4698-9586-B789B741AD6D}.DebugStandard|Any CPU.Build.0 = Debug|Any CPU
+		{C1395774-9D29-4698-9586-B789B741AD6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1395774-9D29-4698-9586-B789B741AD6D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1395774-9D29-4698-9586-B789B741AD6D}.ReleaseStandard|Any CPU.ActiveCfg = Release|Any CPU
+		{C1395774-9D29-4698-9586-B789B741AD6D}.ReleaseStandard|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

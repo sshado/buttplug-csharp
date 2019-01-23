@@ -53,7 +53,7 @@ namespace Buttplug.Client.Platforms.Bluetooth.Actors
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            _log.Information("Stopping the Bluetooth Host.");
+            _log.Information("[Bluetooth Host] : Stopping the Bluetooth Host.");
             _timer.Dispose () ;
             return Task.CompletedTask ;
         }
@@ -70,7 +70,7 @@ namespace Buttplug.Client.Platforms.Bluetooth.Actors
 
         public void WriteTime()
         {
-            _log.Verbose($"[Bluetooth Host]: {DateTime.UtcNow} on timer loop.");
+            _log.Verbose($"[Bluetooth Host] : {DateTime.UtcNow} on timer loop.");
         }
     }
 }
