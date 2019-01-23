@@ -11,6 +11,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Buttplug.Client.Platforms.Bluetooth\Buttplug.Client.Platforms.Bluetooth.csproj" />
+    <ProjectReference Include="..\Buttplug.Server.Managers.UWPBluetoothManager\Buttplug.Server.Managers.UWPBluetoothManager.csproj" />
+    <ProjectReference Include="..\Buttplug\Buttplug.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,6 @@
 ﻿using System;
+using Buttplug.Server;
+
 
 using Buttplug.Client.Platforms.Bluetooth ;
 using Buttplug.Client.Platforms.Bluetooth.Runtime ;
