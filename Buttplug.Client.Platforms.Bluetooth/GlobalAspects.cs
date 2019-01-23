@@ -13,10 +13,10 @@ using PostSharp.Extensibility;
 //    AttributeTargetMemberAttributes = 
 //        MulticastAttributes.Protected | MulticastAttributes.Internal | MulticastAttributes.Public)]
 
-[assembly: Log(
-    AttributePriority = 2, 
-    AttributeExclude = true, 
-    AttributeTargetMembers = "get_*")]
+//[assembly: Log(
+//    AttributePriority = 2, 
+//    AttributeExclude = true, 
+//    AttributeTargetMembers = "get_*")]
 
 //[assembly: ThreadingModelSatisfied( AttributePriority = 3, AttributeTargetTypes= "Buttplug.Client.Platforms.Bluetooth.*", AttributeTargetMemberAttributes = MulticastAttributes.Public | MulticastAttributes.Internal)]
 //[assembly: ThreadingModelSatisfied( AttributePriority = 4, AttributeExclude = true, AttributeTargetTypes= "ActorIdentity")]
