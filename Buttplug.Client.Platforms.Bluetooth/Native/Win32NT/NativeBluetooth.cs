@@ -21,18 +21,24 @@ using Serilog.Core ;
 
 using Microsoft.Win32;
 
+using PostSharp.Patterns.Threading ;
+
+using Serilog.Sinks.Async ;
+
 namespace Buttplug.Client.Platforms.Bluetooth.Native.Win32NT
 {
+    //[ PrivateThreadAware ]
     public class NativeBluetooth : INativeBluetooth
     {
-        [Reference]
+        [ Reference ]
         private readonly ILogger _log = Log.Logger ;
 
-        [Child]
-        private EmbeddedClient _adapter { get ; set ; }
+        [ Child ]
+        internal EmbeddedClient _adapter { get ; set ; }
 
         private readonly string name = "Native Bluetooth" ;
 
+        [ EntryPoint ]
         public bool Initialize ()
         {
             var fireThenForget = ReflectAndConfigure () ;
@@ -57,6 +63,9 @@ namespace Buttplug.Client.Platforms.Bluetooth.Native.Win32NT
             }
         }
 
+        /// <summary>
+        ///     Begins scanning on the Windows adapter.
+        /// </summary>
         private async Task ChooseWindowsAdapter ()
         {
             var version = RuntimeInformation.OSDescription;

@@ -13,17 +13,21 @@ using Serilog ;
 
 using System.Threading.Tasks;
 
+using PostSharp.Patterns.Diagnostics ;
+
 namespace Buttplug.Client.Platforms.Bluetooth.Native.Win32NT.UWP
 {
-    [Actor]
-    class EmbeddedClient
+    [PrivateThreadAware]
+    internal class EmbeddedClient
     {
         [Reference]
         private readonly ILogger _log = Log.Logger;
 
         [Reference]
-        private ButtplugClient _device { get ; set ; }
+        [Log(AttributeExclude = true)]
+        public ButtplugClient _device { get ; set ; }
 
+        [EntryPoint]
         [Reentrant]
         public async Task Entry ()
         {
@@ -32,7 +36,7 @@ namespace Buttplug.Client.Platforms.Bluetooth.Native.Win32NT.UWP
             _device.DeviceAdded += HandleDeviceAdded;
             _device.DeviceRemoved += HandleDeviceRemoved;
         }
-        
+
         [Reentrant]
         public async Task StartScanning ()
         {

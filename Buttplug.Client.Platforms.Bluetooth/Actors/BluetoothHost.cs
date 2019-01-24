@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging ;
 using Microsoft.Extensions.Options ;
 
 using PostSharp.Patterns.Model ;
+using PostSharp.Patterns.Threading ;
 using PostSharp.Serialization ;
 
 
@@ -24,6 +25,7 @@ namespace Buttplug.Client.Platforms.Bluetooth.Actors
     /// <summary>
     ///     Uses <see cref="Microsoft.Extensions.Logging.ILoggerFactory"/> for a logging source.
     /// </summary>
+    [Actor]
     public class BluetoothHost : IBluetoothHost
     {
         [Import]
@@ -36,7 +38,9 @@ namespace Buttplug.Client.Platforms.Bluetooth.Actors
             _factory = factory;
         }
 
-        public Task StartAsync(CancellationToken cancellationToken)
+        [EntryPoint]
+        [Reentrant]
+        public async Task StartAsync(CancellationToken cancellationToken)
         {
             this._bluetooth =
                 (INativeBluetooth) _platform.GetPlatformClass ( "Buttplug.Client.Platforms.Bluetooth.Native", "NativeBluetooth" ) ;
@@ -48,14 +52,14 @@ namespace Buttplug.Client.Platforms.Bluetooth.Actors
                                null,
                                TimeSpan.Zero,
                                TimeSpan.FromMinutes(1));
-            return Task.CompletedTask ;
         }
 
-        public Task StopAsync(CancellationToken cancellationToken)
+        [EntryPoint]
+        [Reentrant]
+        public async Task StopAsync(CancellationToken cancellationToken)
         {
             _log.Information("[Bluetooth Host] : Stopping the Bluetooth Host.");
             _timer.Dispose () ;
-            return Task.CompletedTask ;
         }
 
         private readonly ILoggerFactory _factory ;
@@ -65,10 +69,14 @@ namespace Buttplug.Client.Platforms.Bluetooth.Actors
 
         [ Reference ] private CommonPlatform _platform ;
 
-        [Reference]
+        [ Reference ]
         private readonly ILogger _log = Log.ForContext <BluetoothHost>() ;
 
-        public void WriteTime()
+        /// <summary>
+        ///     Writes the current time out to Verbose logging.
+        /// </summary>
+        [ Reentrant ]
+        private async Task WriteTime()
         {
             _log.Verbose($"[Bluetooth Host] : {DateTime.UtcNow} on timer loop.");
         }

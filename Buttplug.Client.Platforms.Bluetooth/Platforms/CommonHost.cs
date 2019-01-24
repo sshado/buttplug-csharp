@@ -33,13 +33,13 @@ namespace Buttplug.Client.Platforms.Bluetooth.Platforms
     [ ThreadingModelSatisfied ]
     public class CommonHost
     {
-        [Reference]
+        [ Reference ]
         private readonly ILogger _log = Log.ForContext <CommonHost>() ;
 
-        [Child]
+        [ Reference ]
         public IEnumerable <IMicroService> Microservices { get ; private set ; }
 
-        [ Reentrant ]
+        [EntryPoint]
         public async Task Start ( CommonPlatform platform, [ CanBeNull ] string[] args = null )
         {
             var developing = BeingDeveloped () ;
