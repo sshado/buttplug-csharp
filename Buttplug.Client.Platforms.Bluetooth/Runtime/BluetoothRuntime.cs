@@ -7,6 +7,7 @@ using System.IO ;
 using System.Reflection ;
 
 using Buttplug.Client.Platforms.Bluetooth.Aspects ;
+using Buttplug.Client.Platforms.Bluetooth.Composition ;
 using Buttplug.Client.Platforms.Bluetooth.Platforms ;
 
 using JetBrains.Annotations ;
@@ -41,12 +42,14 @@ namespace Buttplug.Client.Platforms.Bluetooth.Runtime
             Platform = new CommonPlatform() ; 
             Assembly = GetAssembly ( typeof( BluetoothRuntime ) ) ;
             ApplicationUri = Path.GetDirectoryName (Assembly.Location ) ;
+            LogMonitor = new PeriodicLogMonitor () ;
         }
 
         [ Pure ] private static Assembly GetAssembly<T>(T type) => type.GetType ().GetTypeInfo ().Assembly ;
 
         [ NotNull , Reference ] private static readonly Assembly Assembly ; 
         [ NotNull , Reference ] private static readonly string ApplicationUri ;
+        [ NotNull , Child ] private static readonly PeriodicLogMonitor LogMonitor ;
         [ NotNull , Child ] private static readonly CommonPlatform Platform ;
         [ NotNull , Reference ] private readonly ILogger _log = Log.ForContext<BluetoothRuntime>();
         [ NotNull , Reference ] private const string Template =
@@ -61,7 +64,7 @@ namespace Buttplug.Client.Platforms.Bluetooth.Runtime
             {
                 var log = VerboseLogger () ;
                 Log.Logger = log ;
-                LoggingServices.DefaultBackend = new SerilogLoggingBackend( log ) ;
+                LoggingServices.DefaultBackend = new SerilogLoggingBackend( log.ForContext("RuntimeContext", "PostSharp") ) ;
             }
             catch ( Exception ex )
             {
@@ -83,7 +86,9 @@ namespace Buttplug.Client.Platforms.Bluetooth.Runtime
                                                                        .Information ( "Successfully launched the common platform from the bluetooth runtime." ) ;
                                                             } ) ;
                 returned.Wait () ;
-                //Platform.Crash("Whoa");
+
+                //  Results in sink monitors receiving StopMonitoring calls.
+                Log.CloseAndFlush () ;
             }
             catch ( ObjectReadOnlyException roEx )
             {
@@ -108,12 +113,15 @@ namespace Buttplug.Client.Platforms.Bluetooth.Runtime
 
         private static ILogger VerboseLogger ()
         {
+            var periodic = new AsyncLogEventMonitor () ;
+
             var config = new LoggerConfiguration()
                     .MinimumLevel.Verbose()
                     .Enrich.FromLogContext()
                     .Enrich.WithThreadId()
-                    .WriteTo.Debug(outputTemplate: Template)
-                    .WriteTo.Async(wt => wt.Console(outputTemplate: Template, theme: ConsoleExtensions.BluetoothConsole));
+                    //.WriteTo.Debug(outputTemplate: Template)
+                    //.WriteTo.Async(wt => wt.Console(outputTemplate: Template, theme: ConsoleExtensions.BluetoothConsole), blockWhenFull: true, monitor: periodic);
+                   .WriteTo.Console(outputTemplate: Template, theme: ConsoleExtensions.BluetoothConsole);
             //      suggested theme AnsiConsoleTheme.Literate
             bool dumpLog = true ;
             if (dumpLog)
@@ -121,7 +129,7 @@ namespace Buttplug.Client.Platforms.Bluetooth.Runtime
                                 GetLogFileName(),
                                 rollingInterval: RollingInterval.Hour,
                                 buffered: true,
-                                retainedFileCountLimit: 100));
+                                retainedFileCountLimit: 100, outputTemplate: Template), monitor: periodic);
 
             return config.CreateLogger();
         }
@@ -137,5 +145,18 @@ namespace Buttplug.Client.Platforms.Bluetooth.Runtime
         }
 
         private static string GetLogFileName () => $"{Environment.OSVersion.Platform}-buttplug-json-log-.txt" ;
+
+        public static void AddPeriodicCheck ( Action aPlatformAction )
+        {
+            //var crashAction = 
+            LogMonitor.StartMonitoringDroppedMessages( aPlatformAction );
+            LogMonitor.StartMonitoringDroppedMessages( aPlatformAction );
+
+        }
+
+        public static void StopPeriodicCheck ()
+        {
+            LogMonitor.StopMonitoringDroppedMessages () ;
+        }
     }
 }
