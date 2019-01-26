@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System ;
+using System.Collections.Generic ;
 using System.Diagnostics ;
 using System.Linq ;
 using System.Reflection ;
-using System.Text;
-using System.Threading.Tasks ;
 
 using Buttplug.Client.Platforms.Bluetooth.Aspects ;
 
@@ -21,16 +19,14 @@ using Serilog ;
 
 namespace Buttplug.Client.Platforms.Bluetooth.Platforms
 {
-    [Freezable]
-    [ThreadingModelSatisfied]
+    [ Freezable ]
+    [ ThreadingModelSatisfied ]
     public class CommonPlatform
     {
+        private Assembly _caller () => Assembly.GetCallingAssembly () ;
+        private Assembly _entry ()  => Assembly.GetEntryAssembly () ;
 
-        private Assembly _caller () => Assembly.GetCallingAssembly() ;
-        private Assembly _entry () => Assembly.GetEntryAssembly () ;
-
-        [ Reference ]
-        public CommonHost BluetoothHost = new CommonHost () ;
+        [ Reference ] public CommonHost BluetoothHost = new CommonHost () ;
 
         /// <summary>
         ///     Locates all matching types in assemblies which were known at compile time.
@@ -40,25 +36,25 @@ namespace Buttplug.Client.Platforms.Bluetooth.Platforms
         ///     This should not be used for dynamically compiled assemblies.
         /// </remarks>
         [ Pure ]
-        public static IEnumerable<Type> GetAllTypesOf<T>()
+        public static IEnumerable <Type> GetAllTypesOf <T> ()
         {
-            var platform             = Environment.OSVersion.Platform.ToString();
-            var runtimeAssemblyNames = DependencyContext.Default.GetRuntimeAssemblyNames(platform);
+            var platform             = Environment.OSVersion.Platform.ToString () ;
+            var runtimeAssemblyNames = DependencyContext.Default.GetRuntimeAssemblyNames ( platform ) ;
 
             return runtimeAssemblyNames
-                  .Select(Assembly.Load)
-                  .SelectMany(a => a.ExportedTypes)
-                  .Where(t => typeof(T).IsAssignableFrom(t));
+                  .Select ( Assembly.Load )
+                  .SelectMany ( a => a.ExportedTypes )
+                  .Where ( t => typeof( T ).IsAssignableFrom ( t ) ) ;
         }
 
         /// <summary>
         ///     Return types which are dynamically known from the entry-point assembly.
         /// </summary>
-        [Pure]
-        private IEnumerable<Type> FindEntryTypes<T>()
+        [ Pure ]
+        private IEnumerable <Type> FindEntryTypes <T> ()
         {
-            _entry().GetReferencedAssemblies();
-            foreach (TypeInfo type in _entry().DefinedTypes)
+            _entry ().GetReferencedAssemblies () ;
+            foreach ( TypeInfo type in _entry ().DefinedTypes )
                 if ( type.ImplementedInterfaces.Contains ( typeof( IMicroService ) ) )
                     yield return type ;
         }
@@ -99,7 +95,7 @@ namespace Buttplug.Client.Platforms.Bluetooth.Platforms
             string className )
         {
             // Get calling assembly.
-            var calling = _caller() ;
+            var calling = _caller () ;
 
             return this.GetPlatformClass ( calling, @namespace, className ) ;
         }
@@ -115,7 +111,7 @@ namespace Buttplug.Client.Platforms.Bluetooth.Platforms
         {
             // Validate base namespace.
             if ( ! this.NamespaceExists ( assembly, @namespace ) )
-                this.Crash( $"Namespace not be located: {@namespace} in assembly: {assembly.FullName}" ) ;
+                this.Crash ( $"Namespace not be located: {@namespace} in assembly: {assembly.FullName}" ) ;
 
             // Get platform-specific namespace.
             string platformNamespace = $"{@namespace}.{Environment.OSVersion.Platform.ToString ()}" ;
@@ -137,7 +133,7 @@ namespace Buttplug.Client.Platforms.Bluetooth.Platforms
             }
             catch ( Exception ex )
             {
-                this.Crash( $"Failed to create a native platform class called {typeName}: {ex.Message}" ) ;
+                this.Crash ( $"Failed to create a native platform class called {typeName}: {ex.Message}" ) ;
 
                 // ReSharper disable once HeuristicUnreachableCode - satisfy verifier
                 return null ;
@@ -154,18 +150,18 @@ namespace Buttplug.Client.Platforms.Bluetooth.Platforms
             Log.Fatal ( ( reason ) ) ;
 
             // Check for the presence of debugger and yield.
-            this.EnterDebugger();
+            this.EnterDebugger () ;
 
             // ReSharper disable once InconsistentNaming - 128 (0x80) indicates no need to wait for child processes
-            const int ERROR_WAIT_NO_CHILDREN = 128;
-            Environment.Exit(ERROR_WAIT_NO_CHILDREN);
+            const int ERROR_WAIT_NO_CHILDREN = 128 ;
+            Environment.Exit ( ERROR_WAIT_NO_CHILDREN ) ;
         }
 
         [ Pure, Conditional ( "DEBUG" ) ]
-        private void EnterDebugger()
+        private void EnterDebugger ()
         {
-            if (Debugger.IsAttached)
-                Debugger.Break();
+            if ( Debugger.IsAttached )
+                Debugger.Break () ;
         }
     }
 }

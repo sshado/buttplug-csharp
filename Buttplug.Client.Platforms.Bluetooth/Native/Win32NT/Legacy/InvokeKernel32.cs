@@ -6,7 +6,7 @@
 using System ;
 using System.Runtime.InteropServices ;
 
-using Microsoft.Win32.SafeHandles;
+using Microsoft.Win32.SafeHandles ;
 
 namespace Buttplug.Client.Platforms.Bluetooth.Native.Win32NT.Legacy
 {
@@ -40,7 +40,7 @@ namespace Buttplug.Client.Platforms.Bluetooth.Native.Win32NT.Legacy
         /// <param name="lpErrors"></param>
         /// <param name="lpStat"></param>
         /// <returns></returns>
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        [ DllImport ( "kernel32.dll", CharSet = CharSet.Auto, SetLastError = true ) ]
         internal static extern bool ClearCommError ( SafeFileHandle hFile, ref int lpErrors, ref COMSTAT lpStat ) ;
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace Buttplug.Client.Platforms.Bluetooth.Native.Win32NT.Legacy
         ///     if dwDesiredAccess is zero then you can query metadata without accessing the file or device even if access is denied.
         ///     if dwShareMode is zero and CreateFile succeeds then the device/file will be locked until the handle is closed.
         /// </remarks>
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        [ DllImport ( "kernel32.dll", CharSet = CharSet.Auto, SetLastError = true ) ]
         internal static extern SafeFileHandle CreateFile ( string lpFileName,
                                                            int    dwDesiredAccess,
                                                            int    dwShareMode,

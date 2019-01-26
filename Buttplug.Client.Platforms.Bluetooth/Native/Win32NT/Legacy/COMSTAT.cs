@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Buttplug.Client.Platforms.Bluetooth.Native.Win32NT.Legacy
+﻿namespace Buttplug.Client.Platforms.Bluetooth.Native.Win32NT.Legacy
 {
     /// <summary>
     ///     This implements the COMSTAT structure

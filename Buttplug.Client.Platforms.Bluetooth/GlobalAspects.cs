@@ -1,8 +1,4 @@
-﻿using System ;
-
-using Buttplug.Client.Platforms.Bluetooth.Aspects ;
-
-using PostSharp.Patterns.Diagnostics;
+﻿using PostSharp.Patterns.Diagnostics;
 using PostSharp.Extensibility;
 
 [assembly: Log(AttributePriority = 1,

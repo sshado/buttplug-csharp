@@ -6,6 +6,6 @@ namespace Buttplug.Client.Platforms.Bluetooth.Native
     {
         IAdapter Adapter { get ; }
 
-        bool Restart();
+        bool Restart () ;
     }
 }

@@ -1,26 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq ;
-using System.Text;
+﻿using System ;
+using System.Collections.Generic ;
 using System.Threading.Tasks ;
 
 using Buttplug.Client.Platforms.Bluetooth.Actors ;
 using Buttplug.Client.Platforms.Bluetooth.Aspects ;
-using Buttplug.Client.Platforms.Bluetooth.Exceptions ;
-using Buttplug.Client.Platforms.Bluetooth.Runtime ;
 
 using JetBrains.Annotations ;
 
 using Microsoft.Extensions.Hosting ;
-using Microsoft.Extensions.Configuration.CommandLine ;
 using Microsoft.Extensions.Configuration ;
-using Microsoft.Extensions.Configuration.Json ;
 using Microsoft.Extensions.DependencyInjection ;
-using Microsoft.Extensions.Logging ;
 
 using PostSharp.Patterns.Model ;
 using PostSharp.Patterns.Threading ;
-using PostSharp.Serialization ;
 
 using Serilog ;
 using Serilog.Events ;
@@ -33,13 +25,12 @@ namespace Buttplug.Client.Platforms.Bluetooth.Platforms
     [ ThreadingModelSatisfied ]
     public class CommonHost
     {
-        [ Reference ]
-        private readonly ILogger _log = Log.ForContext <CommonHost>() ;
+        [ Reference ] private readonly ILogger _log = Log.ForContext <CommonHost> () ;
 
         [ Reference ]
         public IEnumerable <IMicroService> Microservices { get ; private set ; }
 
-        [EntryPoint]
+        [ EntryPoint ]
         public async Task Start ( CommonPlatform platform, [ CanBeNull ] string[] args = null )
         {
             var developing = BeingDeveloped () ;
@@ -55,15 +46,14 @@ namespace Buttplug.Client.Platforms.Bluetooth.Platforms
 
                                                           //if ( developing )
                                                           //    config.AddUserSecrets <CommonHost> () ;
-
                                                       } )
                          .UseSerilog ( ( host, log ) =>
                                        {
                                            bool configured =
-                                               Enum.TryParse (typeof(Serilog.Events.LogEventLevel),
-                                                              host.Configuration.GetSection ( "LoggingLevel" ).Value,
-                                                              true,
-                                                              out object config ) ;
+                                               Enum.TryParse ( typeof( Serilog.Events.LogEventLevel ),
+                                                               host.Configuration.GetSection ( "LoggingLevel" ).Value,
+                                                               true,
+                                                               out object config ) ;
                                            if ( developing && configured )
                                                log.WriteTo.Console ().MinimumLevel
                                                   .Is ( ( LogEventLevel ) config ) ;
@@ -87,7 +77,7 @@ namespace Buttplug.Client.Platforms.Bluetooth.Platforms
                                                                                                               = platform ;
                                                                                                       } ) ;
 
-                                                                     var provider = services.BuildServiceProvider();
+                                                                     //var provider = services.BuildServiceProvider();
                                                                      //var bleHost = provider.GetService <IBluetoothHost> () ;
 
                                                                      //var microservices =
@@ -102,10 +92,10 @@ namespace Buttplug.Client.Platforms.Bluetooth.Platforms
         private bool BeingDeveloped ()
         {
             var env =
-                Environment.GetEnvironmentVariable("NETCORE_ENVIRONMENT");
+                Environment.GetEnvironmentVariable ( "NETCORE_ENVIRONMENT" ) ;
 
-            return string.IsNullOrEmpty(env) ||
-                              env.Equals("Development", StringComparison.Ordinal);
+            return string.IsNullOrEmpty ( env ) ||
+                   env.Equals ( "Development", StringComparison.Ordinal ) ;
         }
     }
 }

@@ -14,18 +14,13 @@ using JetBrains.Annotations ;
 
 using PostSharp ;
 using PostSharp.Patterns.Diagnostics ;
-using PostSharp.Patterns.Diagnostics.Backends.Console ;
 using PostSharp.Patterns.Diagnostics.Backends.Serilog ;
 using PostSharp.Patterns.Model ;
 using PostSharp.Patterns.Threading ;
 
 using Serilog ;
-using Serilog.Formatting.Compact ;
-using Serilog.Formatting.Display ;
-using Serilog.Formatting.Raw ;
-using Serilog.Sinks.SystemConsole.Themes ;
 
-using NotNullAttribute = JetBrains.Annotations.NotNullAttribute;
+using NotNullAttribute = JetBrains.Annotations.NotNullAttribute ;
 
 namespace Buttplug.Client.Platforms.Bluetooth.Runtime
 {
@@ -39,23 +34,25 @@ namespace Buttplug.Client.Platforms.Bluetooth.Runtime
     {
         static BluetoothRuntime ()
         {
-            Platform = new CommonPlatform() ; 
-            Assembly = GetAssembly ( typeof( BluetoothRuntime ) ) ;
-            ApplicationUri = Path.GetDirectoryName (Assembly.Location ) ;
-            LogMonitor = new PeriodicLogMonitor () ;
+            Platform       = new CommonPlatform () ;
+            Assembly       = GetAssembly ( typeof( BluetoothRuntime ) ) ;
+            ApplicationUri = Path.GetDirectoryName ( Assembly.Location ) ;
+            LogMonitor     = new PeriodicLogMonitor () ;
         }
 
-        [ Pure ] private static Assembly GetAssembly<T>(T type) => type.GetType ().GetTypeInfo ().Assembly ;
+        [ Pure ]
+        private static Assembly GetAssembly <T> ( T type ) => type.GetType ().GetTypeInfo ().Assembly ;
 
-        [ NotNull , Reference ] private static readonly Assembly Assembly ; 
-        [ NotNull , Reference ] private static readonly string ApplicationUri ;
-        [ NotNull , Child ] private static readonly PeriodicLogMonitor LogMonitor ;
-        [ NotNull , Child ] private static readonly CommonPlatform Platform ;
-        [ NotNull , Reference ] private readonly ILogger _log = Log.ForContext<BluetoothRuntime>();
-        [ NotNull , Reference ] private const string Template =
-            "{Timestamp:yyyy-MM-dd HH:mm:ss} | {Level:u3}: [{ThreadId}:{SourceContext}] {Message:lj}{NewLine}{Exception}";
+        [ NotNull, Reference ] private static readonly Assembly           Assembly ;
+        [ NotNull, Reference ] private static readonly string             ApplicationUri ;
+        [ NotNull, Child ]     private static readonly PeriodicLogMonitor LogMonitor ;
+        [ NotNull, Child ]     private static readonly CommonPlatform     Platform ;
+        [ NotNull, Reference ] private readonly        ILogger            _log = Log.ForContext <BluetoothRuntime> () ;
+
+        [ NotNull, Reference ] private const string Template =
+            "{Timestamp:yyyy-MM-dd HH:mm:ss} | {Level:u3}: [{ThreadId}:{SourceContext}] {Message:lj}{NewLine}{Exception}" ;
+
         //[ NotNull, Reference ] private readonly string _fileSuffix = $"EntryPointLog_{DateTime.Today:d-MMM-yyyy}.log";
-
 
         [ EntryPoint ]
         public void Entry ()
@@ -64,23 +61,25 @@ namespace Buttplug.Client.Platforms.Bluetooth.Runtime
             {
                 var log = VerboseLogger () ;
                 Log.Logger = log ;
-                LoggingServices.DefaultBackend = new SerilogLoggingBackend( log.ForContext("RuntimeContext", "PostSharp") ) ;
+                LoggingServices.DefaultBackend =
+                    new SerilogLoggingBackend ( log.ForContext ( "RuntimeContext", "PostSharp" ) ) ;
             }
             catch ( Exception ex )
             {
-                Platform.Crash();
+                Platform.Crash () ;
             }
 
             try
             {
-                Post.Cast<BluetoothRuntime, IFreezable>(this).Freeze();
-                Post.Cast<CommonPlatform, IFreezable>(Platform).Freeze();
+                Post.Cast <BluetoothRuntime, IFreezable> ( this ).Freeze () ;
+                Post.Cast <CommonPlatform, IFreezable> ( Platform ).Freeze () ;
 
-                var cleanlyLaunch = Platform.BluetoothHost.Start (Platform) ;
+                var cleanlyLaunch = Platform.BluetoothHost.Start ( Platform ) ;
                 var returned = cleanlyLaunch.ContinueWith ( ( t ) =>
                                                             {
                                                                 if ( t.IsFaulted || t.IsCanceled )
-                                                                    Platform.Crash ($"Fatal exception in the common platform at runtime{Environment.NewLine}{t.Exception?.ToString()}");
+                                                                    Platform
+                                                                       .Crash ( $"Fatal exception in the common platform at runtime{Environment.NewLine}{t.Exception?.ToString ()}" ) ;
                                                                 else
                                                                     _log
                                                                        .Information ( "Successfully launched the common platform from the bluetooth runtime." ) ;
@@ -98,16 +97,16 @@ namespace Buttplug.Client.Platforms.Bluetooth.Runtime
             }
             catch ( ThreadMismatchException threadEx )
             {
-                _log.Fatal ( $"An object was accessed from a different thread than it was created." +
+                _log.Fatal ( $"An object was accessed from a different thread than it was created."                                +
                              $"{Environment.NewLine}Please use a threading model or freeze the object before crossing boundaries." +
                              $"{threadEx}" ) ;
                 Platform.Crash ( "Fatal thread access exception was thrown." ) ;
             }
             catch ( Exception ex )
             {
-                _log.Fatal($"Could not freeze and launch the common platform from the bluetooth runtime." +
-                           $"{Environment.NewLine}{ex}");
-                Platform.Crash("Unknown failure occurred in an EntryPointAttribute for the bluetooth runtime.");
+                _log.Fatal ( $"Could not freeze and launch the common platform from the bluetooth runtime." +
+                             $"{Environment.NewLine}{ex}" ) ;
+                Platform.Crash ( "Unknown failure occurred in an EntryPointAttribute for the bluetooth runtime." ) ;
             }
         }
 
@@ -115,32 +114,36 @@ namespace Buttplug.Client.Platforms.Bluetooth.Runtime
         {
             var periodic = new AsyncLogEventMonitor () ;
 
-            var config = new LoggerConfiguration()
-                    .MinimumLevel.Verbose()
-                    .Enrich.FromLogContext()
-                    .Enrich.WithThreadId()
-                    //.WriteTo.Debug(outputTemplate: Template)
-                    //.WriteTo.Async(wt => wt.Console(outputTemplate: Template, theme: ConsoleExtensions.BluetoothConsole), blockWhenFull: true, monitor: periodic);
-                   .WriteTo.Console(outputTemplate: Template, theme: ConsoleExtensions.BluetoothConsole);
+            var config = new LoggerConfiguration ()
+                        .MinimumLevel.Verbose ()
+                        .Enrich.FromLogContext ()
+                        .Enrich.WithThreadId ()
+
+                         //.WriteTo.Debug(outputTemplate: Template)
+                         //.WriteTo.Async(wt => wt.Console(outputTemplate: Template, theme: ConsoleExtensions.BluetoothConsole), blockWhenFull: true, monitor: periodic);
+                        .WriteTo.Console ( outputTemplate: Template, theme: ConsoleExtensions.BluetoothConsole ) ;
+
             //      suggested theme AnsiConsoleTheme.Literate
             bool dumpLog = true ;
-            if (dumpLog)
-                config.WriteTo.Async( wt => wt.File(
-                                GetLogFileName(),
-                                rollingInterval: RollingInterval.Hour,
-                                buffered: true,
-                                retainedFileCountLimit: 100, outputTemplate: Template), monitor: periodic);
+            if ( dumpLog )
+                config.WriteTo.Async ( wt => wt.File (
+                                                      GetLogFileName (),
+                                                      rollingInterval: RollingInterval.Hour,
+                                                      buffered: true,
+                                                      retainedFileCountLimit: 100, outputTemplate: Template ),
+                                       monitor: periodic ) ;
 
-            return config.CreateLogger();
+            return config.CreateLogger () ;
         }
 
         private static ILogger DebugLogger ()
         {
-            var serilogConfig = new LoggerConfiguration()
-                               .MinimumLevel.Debug()
-                               .WriteTo.Console(outputTemplate: Template, theme: ConsoleExtensions.BluetoothConsole)
+            var serilogConfig = new LoggerConfiguration ()
+                               .MinimumLevel.Debug ()
+                               .WriteTo.Console ( outputTemplate: Template, theme: ConsoleExtensions.BluetoothConsole )
+
                                 //.WriteTo.File (_fileSuffix, outputTemplate: _template )
-                               .CreateLogger();
+                               .CreateLogger () ;
             return serilogConfig ;
         }
 
@@ -149,9 +152,8 @@ namespace Buttplug.Client.Platforms.Bluetooth.Runtime
         public static void AddPeriodicCheck ( Action aPlatformAction )
         {
             //var crashAction = 
-            LogMonitor.StartMonitoringDroppedMessages( aPlatformAction );
-            LogMonitor.StartMonitoringDroppedMessages( aPlatformAction );
-
+            LogMonitor.StartMonitoringDroppedMessages ( aPlatformAction ) ;
+            LogMonitor.StartMonitoringDroppedMessages ( aPlatformAction ) ;
         }
 
         public static void StopPeriodicCheck ()

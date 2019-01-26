@@ -1,27 +1,35 @@
 ﻿#region Header
-// Buttplug.Client.Platforms.Bluetooth/IPlatformService.cs - Created on 2019-01-16 at 8:32 PM by Sshado.
+// Buttplug.Client.Platforms.Bluetooth/IMicroService.cs - Created on 2019-01-17 at 8:49 PM by Sshado.
+// This file is part of Buttplug.io which is BSD-3 licensed.
 #endregion
 
-using System.Threading.Tasks;
+#region Using
+using System.Threading.Tasks ;
 
 using Buttplug.Client.Platforms.Bluetooth.Composition ;
 
-using JetBrains.Annotations;
+using JetBrains.Annotations ;
+#endregion
 
 namespace Buttplug.Client.Platforms.Bluetooth
 {
     /// <summary>
-    ///     The interface presented by a microservice which the platform service uses to import in Managed Extensibility Framework.
+    ///     The interface presented by a microservice which the platform service uses to import in Managed Extensibility
+    ///     Framework.
     /// </summary>
     public interface IMicroService
     {
-        Task<bool> Initialize([NotNull] IPlatformService coreService);
-
+        #region Properties & Fields
         [ NotNull ]
         ActorIdentity Identity { get ; }
+        #endregion
+
+        #region Members
+        Task <bool> Initialize ( [ NotNull ] IPlatformService coreService ) ;
 
         /* async */
         [ NotNull ]
-        Task HandleMessage([NotNull] dynamic message);
+        Task HandleMessage ( [ NotNull ] dynamic message ) ;
+        #endregion
     }
 }

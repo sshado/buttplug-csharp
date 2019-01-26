@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-using Buttplug.Client.Platforms.Bluetooth.Platforms ;
+﻿using Buttplug.Client.Platforms.Bluetooth.Platforms ;
 
 using PostSharp.Patterns.Model ;
 
