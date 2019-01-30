@@ -1,4 +1,7 @@
 ﻿namespace Buttplug.Client.Platforms.Bluetooth.Native
 {
-    public interface IAdapter { }
+    public interface IAdapter
+    {
+        bool Termiate () ;
+    }
 }

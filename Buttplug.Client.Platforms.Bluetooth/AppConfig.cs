@@ -6,9 +6,7 @@ namespace Buttplug.Client.Platforms.Bluetooth
 {
     public class AppConfig
     {
-        [ Reference ]
         public string Options { get ; set ; }
-        [ Reference ]
         public CommonPlatform Platform { get ; set ; }
     }
 }

@@ -39,7 +39,7 @@ namespace Buttplug.Client.Platforms.Bluetooth.Actors
         [ Reference ] private CommonPlatform _platform ;
 
         [ Import ]
-        [ Reference ]
+        [ Child ]
         private INativeBluetooth _bluetooth { get ; set ; }
 
         [ Reference ]

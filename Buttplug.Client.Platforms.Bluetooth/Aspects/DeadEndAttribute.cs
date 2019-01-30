@@ -4,6 +4,8 @@
 #endregion
 
 #region Using
+using System ;
+
 using PostSharp.Aspects ;
 using PostSharp.Serialization ;
 #endregion
@@ -20,6 +22,8 @@ namespace Buttplug.Client.Platforms.Bluetooth.Aspects
 
         // ReSharper disable once RedundantDefaultMemberInitializer - not obvious
         public int RoadBlock = 0 ;
+
+        public bool Called = false;
         #endregion
 
         #region Members
@@ -31,8 +35,11 @@ namespace Buttplug.Client.Platforms.Bluetooth.Aspects
             //  Potential miss but better to miss than fail in this one case.
             if ( RoadBlock > 1 )
             {
-                args.ReturnValue = null ;
-                return ;
+                if ( ! Called )
+                    throw new Exception ( "Two threads simultaneously entered a single-entry method for the first time." ) ;
+
+                args.ReturnValue = null;
+                return;
             }
 
             //  Proceed with the original call this first time.

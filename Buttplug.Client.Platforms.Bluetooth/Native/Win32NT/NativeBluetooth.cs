@@ -20,15 +20,15 @@ using Serilog ;
 
 namespace Buttplug.Client.Platforms.Bluetooth.Native.Win32NT
 {
-    [ Aggregatable ]
+    [ PrivateThreadAware ]
     public class NativeBluetooth : INativeBluetooth
     {
         #region Properties & Fields
-        [ Reference ] private readonly ILogger _log = Log.Logger ;
+        [ Reference ] private readonly ILogger _log = Log.ForContext<NativeBluetooth> ( ) ;
 
         private readonly string name = "Native Bluetooth" ;
 
-        [ Child ]
+        [ Reference ]
         internal EmbeddedClient _adapter { get ; set ; }
 
         [ Child ]

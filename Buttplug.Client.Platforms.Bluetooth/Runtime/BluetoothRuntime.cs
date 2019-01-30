@@ -151,8 +151,6 @@ namespace Buttplug.Client.Platforms.Bluetooth.Runtime
 
         public static void AddPeriodicCheck ( Action aPlatformAction )
         {
-            //var crashAction = 
-            LogMonitor.StartMonitoringDroppedMessages ( aPlatformAction ) ;
             LogMonitor.StartMonitoringDroppedMessages ( aPlatformAction ) ;
         }
 

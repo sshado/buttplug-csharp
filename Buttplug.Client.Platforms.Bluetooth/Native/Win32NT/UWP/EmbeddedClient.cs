@@ -11,7 +11,7 @@ using PostSharp.Patterns.Diagnostics ;
 
 namespace Buttplug.Client.Platforms.Bluetooth.Native.Win32NT.UWP
 {
-    [ PrivateThreadAware ]
+    [ Aggregatable ]
     internal class EmbeddedClient
     {
         [ Reference ] private readonly ILogger _log = Log.Logger ;
@@ -20,7 +20,6 @@ namespace Buttplug.Client.Platforms.Bluetooth.Native.Win32NT.UWP
         [ Log ( AttributeExclude = true ) ]
         public ButtplugClient _device { get ; set ; }
 
-        [ EntryPoint ]
         [ Reentrant ]
         public async Task Entry ()
         {

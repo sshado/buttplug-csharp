@@ -21,16 +21,9 @@ using ILogger = Serilog.ILogger ;
 
 namespace Buttplug.Client.Platforms.Bluetooth.Platforms
 {
-    [ PrivateThreadAware ]
     [ ThreadingModelSatisfied ]
     public class CommonHost
     {
-        [ Reference ] private readonly ILogger _log = Log.ForContext <CommonHost> () ;
-
-        [ Reference ]
-        public IEnumerable <IMicroService> Microservices { get ; private set ; }
-
-        [ EntryPoint ]
         public async Task Start ( CommonPlatform platform, [ CanBeNull ] string[] args = null )
         {
             var developing = BeingDeveloped () ;
@@ -47,20 +40,20 @@ namespace Buttplug.Client.Platforms.Bluetooth.Platforms
                                                           //if ( developing )
                                                           //    config.AddUserSecrets <CommonHost> () ;
                                                       } )
-                         .UseSerilog ( ( host, log ) =>
-                                       {
-                                           bool configured =
-                                               Enum.TryParse ( typeof( Serilog.Events.LogEventLevel ),
-                                                               host.Configuration.GetSection ( "LoggingLevel" ).Value,
-                                                               true,
-                                                               out object config ) ;
-                                           if ( developing && configured )
-                                               log.WriteTo.Console ().MinimumLevel
-                                                  .Is ( ( LogEventLevel ) config ) ;
-                                           else
-                                               log.WriteTo.Console ().MinimumLevel
-                                                  .Is ( LogEventLevel.Verbose ) ;
-                                       } )
+                         //.UseSerilog ( ( host, log ) =>
+                         //              {
+                         //                  bool configured =
+                         //                      Enum.TryParse ( typeof( Serilog.Events.LogEventLevel ),
+                         //                                      host.Configuration.GetSection ( "LoggingLevel" ).Value,
+                         //                                      true,
+                         //                                      out object config ) ;
+                         //                  if ( developing && configured )
+                         //                      log.WriteTo.Console ().MinimumLevel
+                         //                         .Is ( ( LogEventLevel ) config ) ;
+                         //                  else
+                         //                      log.WriteTo.Console ().MinimumLevel
+                         //                         .Is ( LogEventLevel.Verbose ) ;
+                         //              } )
                          .ConfigureServices ( configureDelegate: ( context, services ) =>
                                                                  {
                                                                      services.AddOptions () ;
