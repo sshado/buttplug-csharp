@@ -1,6 +1,6 @@
 ﻿namespace Buttplug.Client.Platforms.Bluetooth.Native
 {
-    internal class UnsaefUwpVersions
+    internal class UnsafeUwpVersions
     {
         public string[] Versions ()
         {

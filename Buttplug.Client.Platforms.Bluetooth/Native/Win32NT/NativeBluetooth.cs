@@ -43,7 +43,7 @@ namespace Buttplug.Client.Platforms.Bluetooth.Native.Win32NT
             if ( systemWindows )
             {
                 var longName       = RuntimeInformation.OSDescription ;
-                var unsafeVersions = new UnsaefUwpVersions ().Versions () ;
+                var unsafeVersions = new UnsafeUwpVersions ().Versions () ;
                 if ( unsafeVersions.Any ( version => version == longName ) )
                     Terminate ( "Recognized that the environment is running in an unsupported version of Windows 10. Please upgrade." +
                                 $" Unsafe [ {string.Join ( " ; ", unsafeVersions )} ]" ) ;
